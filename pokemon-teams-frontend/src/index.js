@@ -8,6 +8,31 @@ function fetchTrainer() {
     .then(showTrainer);
 }
 
+function catchPokemon() {
+  let buttons = document.querySelectorAll('.catch');
+  buttons.forEach(button => {
+    // console.log(button);
+    button.addEventListener('click', event => {
+      let trainerId = event.target.dataset;
+      addPokemon(trainerId);
+    });
+  });
+}
+
+function addPokemon(trainerId) {
+  fetch(POKEMONS_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      trainer_id: trainerId
+    })
+  })
+    .then(response => response.json())
+    .then(data => console.log(data));
+}
+
 function showTrainer(json) {
   const main = document.querySelector('main');
   json.forEach(trainer => {
@@ -17,7 +42,7 @@ function showTrainer(json) {
     card.dataset.dataId = `${trainer.id}`;
     card.innerHTML = `
     <p>${trainer.name}</p>
-    <button data-trainer-id="${trainer.id}">Add Pokemon</button>
+    <button data-trainer-id="${trainer.id}" class="catch">Add Pokemon</button>
     <ul id="poke-list-${trainer.id}">
     </ul>
     `;
@@ -34,8 +59,7 @@ function showTrainer(json) {
       `;
     });
   });
-
-  console.log(json);
+  catchPokemon();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
