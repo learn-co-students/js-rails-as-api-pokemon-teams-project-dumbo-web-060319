@@ -30,7 +30,49 @@ function addPokemon(trainerId) {
     })
   })
     .then(response => response.json())
-    .then(data => console.log(data));
+    .then(showPokemon);
+}
+
+function throwPokemonInTrash() {
+  const buttons = document.querySelectorAll('.release');
+  buttons.forEach(button => {
+    button.addEventListener('click', function(event) {
+      console.log(event.target);
+      let pokemonId = event.target.dataset;
+      let id = pokemonId['pokemonId'];
+      console.log(pokemonId['pokemonId']);
+      fetch(`${POKEMONS_URL}/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: pokemonId
+        })
+      })
+        .then(response => response.json())
+        .then(removePokemon);
+    });
+  });
+}
+
+function removePokemon(json) {
+  console.log(json);
+  let li = document.querySelector(`#poke-list-item-${json.id}`);
+  li.remove();
+  // document.querySelector
+}
+
+function showPokemon(pokemon) {
+  const ul = document.querySelector(`#poke-list-${pokemon.trainer_id}`);
+  let li = document.createElement('li');
+  ul.append(li);
+  li.id = `poke-list-item-${pokemon.id}`;
+  li.innerHTML = `
+          ${pokemon.nickname} (${
+    pokemon.species
+  }) <button class="release" data-pokemon-id=${pokemon.id}>Release</button>
+        `;
 }
 
 function showTrainer(json) {
@@ -50,6 +92,7 @@ function showTrainer(json) {
       const ul = document.querySelector(`#poke-list-${trainer.id}`);
       let li = document.createElement('li');
       ul.append(li);
+      li.id = `poke-list-item-${pokemon.id}`;
       li.innerHTML = `
       ${pokemon.nickname} (${
         pokemon.species
@@ -59,6 +102,7 @@ function showTrainer(json) {
       `;
     });
   });
+  throwPokemonInTrash();
   catchPokemon();
 }
 
