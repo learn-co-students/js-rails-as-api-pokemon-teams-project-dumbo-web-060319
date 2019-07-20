@@ -11,11 +11,12 @@ function slapThatTrainer(trainers) {
 		trainerCard.dataset.id = trainer.id;
 		trainerCard.innerHTML += `<p> ${trainer.name} </p>`
 		trainerCard.innerHTML += `<button data-trainer-id="${trainer.id}" class="addPokemon"> Add Pokémon! </button>`;
-		trainerCard.innerHTML += '<ul class="trainerPokemons"> </ul>'
+		trainerCard.innerHTML += `<ul class="trainerPokemons" id="trainer-id-${trainer.id}"> </ul>`
 		let listOfPokemon = trainerCard.querySelector('.trainerPokemons');
 		MAIN.append(trainerCard);
+		let ul = trainerCard.querySelector('ul');
 		for (let pokemon of trainer.pokemons) {
-			trainerCard.innerHTML += `<li>${pokemon.species} -- ${pokemon.nickname} <button class="release" data-pokemon-id="${pokemon.id}">Release</button> </li>`
+			ul.innerHTML += `<li>${pokemon.species} -- ${pokemon.nickname} <button class="release" data-pokemon-id="${pokemon.id}">Release</button> </li>`
 		}
 	}
 }
@@ -31,34 +32,49 @@ document.addEventListener("DOMContentLoaded", event => {
 });
 
 function showNewPokemon(pokemon) {
-	let targetCard = '<div> </div>';
-	for (divCard of DIVCARDS) {
-		if (divCard.dataset.id == poekmon.id) {
-			targetCard = divCard;
-			break;
-		}
-	}
+	let ul = document.querySelector(`#trainer-id-${pokemon.trainer_id}`);
+	// debugger;
+	// do the debugger for this and find the null prob with query
+	ul.innerHTML += `<li>${pokemon.species} -- ${pokemon.nickname} <button class="release" data-pokemon-id="${pokemon.id}">Release</button> </li>`
 }
 
-function createPokemon(trainer_id) {
+function createPokemon(trainerId) {
 	fetch(POKEMONS_URL, {
 		method: "POST",
 		headers: {
 			'Content-Type': 'application/json'
 		},
 		body: JSON.stringify({
-			"trainer_id": trainer_id
+			"trainer_id": trainerId
 		})
 	})
 	.then(response => response.json())
 	.then(showNewPokemon)
 }
 
+function updateList(json) {
+	console.log(json);
+}
+
+function deletePokemon(pokemonId) {
+	fetch(`${POKEMONS_URL}/${pokemonId}`, {
+		method: "DELETE",
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			"id": pokemonId
+		})
+	})
+	location.reload();
+}
+
 document.addEventListener("click", event => {
-	if (event.target.className === 'addPokemon'){
-		console.log("hit");
+	if (event.target.className === 'addPokemon') {
 		createPokemon(event.target.dataset.trainerId);
 		// location.reload();
-
+	}
+	else if (event.target.className === 'release') {
+		deletePokemon(event.target.dataset.pokemonId)
 	}
 }) 
